@@ -34,7 +34,7 @@ exports.findByPagination = (collection, query1, searchText, pageNo, limit, sort)
 exports.insert = (collection, query) => {
     query.createdAt = moment().utc().format();
     return new Promise((resolve, reject) => {
-        collection.insert(query, (err, recordSaved) => {
+        collection.insertOne(query, (err, recordSaved) => {
             if (recordSaved) {
                 // console.log("recordSaved",recordSaved)
                 resolve(recordSaved)

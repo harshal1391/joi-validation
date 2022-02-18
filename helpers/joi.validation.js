@@ -3,13 +3,7 @@ const { Joi } = require("express-validation");
 const userParamsValidation = {
   createUser: {
     body: Joi.object({
-      name: Joi.string()
-        .alphanum()
-        .min(6)
-        .required()
-        .error((err) => {
-          return { message: "Invalid name" };
-        }),
+      name: Joi.string().alphanum().min(6).required(),
       emailAddress: Joi.string()
         .regex(
           /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -24,16 +18,8 @@ const userParamsValidation = {
           "Please add at least 8 characters and also include at least one uppercase letter, one lowercase letter, a number and a special character."
         )
         .required(),
-      firstName: Joi.string()
-        .required()
-        .error((err) => {
-          return { message: "alphabets only" };
-        }),
-      lastName: Joi.string()
-        .required()
-        .error((err) => {
-          return { message: "alphabets only" };
-        }),
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
     }),
   },
 };

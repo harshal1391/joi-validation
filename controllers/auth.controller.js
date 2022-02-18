@@ -13,16 +13,13 @@ const {
   generateOTP,
   sendEmail,
 } = require("../helpers/commonfile");
-const { ObjectID } = require("mongodb").ObjectID;
 
 const userRegister = async (req, res, next) => {
   try {
-    console.log("Create User")
-    const requestdata = { emailAddress: req.body.emailAddress };
-    const currentDate = moment().format("YYYY-MM-DDThh:mm:ss");
+    const queryString = { emailAddress: req.body.emailAddress };
 
-    const userEmail = await query.findOne(userColl, requestdata);
-    if (userEmail) {
+    let exists = await query.findOne(userColl, queryString);
+    if (exists) {
       const message = `You have already registered with email`;
       return next(new APIError(`${message}`, httpStatus.BAD_REQUEST, true));
     } else {
@@ -31,22 +28,11 @@ const userRegister = async (req, res, next) => {
 
       user.password = generatePassword(req.body.password);
 
-      const insertdata = await query.insert(userColl, user);
-      if (insertdata.acknowledged) {
-        const obj = resPattern.successPattern(
-          httpStatus.OK,
-          "insertdata",
-          `success`
-        );
-        const otp = generateOTP();
+      const insertedData = await query.insert(userColl, user);
+      if (insertedData.acknowledged) {
+        let otp = generateOTP();
 
-        const toEmail = req.body.emailAddress;
-        const emailBody = `<div>OTP: ${otp}</div>`;
-        const title = `Account Verification OTP`;
-
-        await sendEmail(toEmail, title, emailBody);
-
-        await query.findOneAndUpdate(userColl, requestdata, {
+        await query.findOneAndUpdate(userColl, queryString, {
           $set: {
             otp: otp,
             expireTime: moment()
@@ -59,7 +45,17 @@ const userRegister = async (req, res, next) => {
         const emailbody = `<div>${user.emailAddress} user is registered. </div>`;
         const Title = `User Registration Mail`;
 
-        await sendEmail(toemail, Title, emailbody);
+        //await sendEmail(toemail, Title, emailbody);
+
+        let userData = await query.findOne(userColl, queryString);
+
+        userData.password = "";
+
+        const obj = resPattern.successPattern(
+          httpStatus.OK,
+          userData,
+          `success`
+        );
 
         return res.status(obj.code).json({
           ...obj,

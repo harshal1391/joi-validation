@@ -29,11 +29,7 @@ db.connection().then((database) => {
 
   app.use((err, req, res, next) => {
     if (err instanceof expressValidation.ValidationError) {
-      console.log("validation error");
-      const unifiedErrorMessage = err.errors
-        .map((Error) => Error.messages.join(". "))
-        .join(" and ");
-      const error = new APIError(unifiedErrorMessage, err.status, true);
+      const error = new APIError(err.details, err.statusCode, true);
       return next(error);
     } else if (!(err instanceof APIError)) {
       const apiError = new APIError(
