@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const nodeMailer = require("nodemailer");
 const path = require("path");
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
 
 dotenv.config();
 

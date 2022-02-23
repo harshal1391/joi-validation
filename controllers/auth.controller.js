@@ -7,6 +7,8 @@ const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const userColl = db.collection("user");
 const moment = require("moment");
+const asyncHandler = require("express-async-handler");
+const jwt = require("jsonwebtoken");
 dotenv.config();
 const {
   generatePassword,
@@ -14,7 +16,7 @@ const {
   sendEmail,
 } = require("../helpers/commonfile");
 
-const userRegister = async (req, res, next) => {
+const userRegister = asyncHandler (async (req, res, next) => {
   try {
     const queryString = { emailAddress: req.body.emailAddress };
 
@@ -68,9 +70,9 @@ const userRegister = async (req, res, next) => {
   } catch (e) {
     return next(new APIError(`${e.message}`, httpStatus.BAD_REQUEST, true));
   }
-};
+});
 
-const userLogin = async (req, res, next) => {
+const userLogin = asyncHandler (async (req, res, next) => {
   try {
     const { password } = req.body;
     const reqData = { emailAddress: req.body.emailAddress };
@@ -88,18 +90,39 @@ const userLogin = async (req, res, next) => {
       if (user.status == 0) {
         const currentDate = moment().format("YYYY-MM-DDThh:mm:ssn"); //YYYY-MM-DD[T]HH:mm:ss.SSS[Z]''  YYYY-MM-DDThh:mm:ssn
 
+             const token = jwt.sign(
+               { _id: user._id },
+               process.env.JWT_SECRET,
+               { expiresIn: "24h" }
+             );
+             
+
         delete user["password"];
-        let obj = resPattern.successPattern(httpStatus.OK, { user }, "success");
+        let obj = resPattern.successPattern(
+          httpStatus.OK,
+          { user, token },
+          "success"
+        );
         return res.status(obj.code).json(obj);
       } else {
         const message = `Your Account is not verify.`;
         return next(new APIError(`${message}`, httpStatus.BAD_REQUEST, true));
       }
     };
+     const token = jwt.sign(
+       { _id: user._id },
+       process.env.JWT_SECRET,
+       { expiresIn: "24h" }
+     );
+     
 
     if (isMatch) {
       delete user["password"];
-      let obj = resPattern.successPattern(httpStatus.OK, { user }, "success");
+      let obj = resPattern.successPattern(
+        httpStatus.OK,
+        { user, token },
+        "success"
+      );
       return res.status(obj.code).json(obj);
     } else {
       loginData();
@@ -107,9 +130,9 @@ const userLogin = async (req, res, next) => {
   } catch (e) {
     return next(new APIError(`${e.message}`, httpStatus.BAD_REQUEST, true));
   }
-};
+});
 
-const forgotPassword = async (req, res, next) => {
+const forgotPassword =asyncHandler(async (req, res, next) => {
   try {
     const requestdata = { emailAddress: req.body.emailAddress };
     //find user
@@ -148,7 +171,7 @@ const forgotPassword = async (req, res, next) => {
   } catch (e) {
     return next(new APIError(`${e.message}`, httpStatus.BAD_REQUEST, true));
   }
-};
+});
 
 module.exports = {
   forgotPassword,
