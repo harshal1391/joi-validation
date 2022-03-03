@@ -113,6 +113,7 @@ const userLogin = asyncHandler (async (req, res, next) => {
        { _id: user._id },
        process.env.JWT_SECRET,
        { expiresIn: "24h" }
+
      );
      
 
@@ -144,6 +145,7 @@ const forgotPassword =asyncHandler(async (req, res, next) => {
 
     if (userData) {
       const otp = generateOTP();
+      
 
       await query.findOneAndUpdate(userColl, requestdata, {
         $set: {
